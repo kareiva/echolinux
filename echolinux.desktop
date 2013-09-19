@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Type=Application
+Exec=echogui
+Icon=echolinux_48x48.png
+Terminal=false
+Name=EchoLinux
+Comment=Echolink client
+Categories=Application;Network;

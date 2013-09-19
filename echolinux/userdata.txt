@@ -1,0 +1,5 @@
+callsign
+name
+location
+password
+

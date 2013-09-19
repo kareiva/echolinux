@@ -1,0 +1,7 @@
+#/bin/sh
+
+if [ ! -d ~/.echoLinux ]; then mkdir ~/.echoLinux; fi; \
+        cp -f /usr/local/etc/*.txt ~/.echoLinux ; \
+        cp -f /usr/local/etc/*.wav ~/.echoLinux
+echo "Be sure to edit userdata.txt and info.txt located in $HOME/.echoLinux"
+

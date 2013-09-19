@@ -1,0 +1,166 @@
+Using EchoLinux
+Jeff Pierce, wd4nmq@earthlink.net
+
+EchoLiunx by it self is really not a "user friendly" ilink/echolink application. 
+It has NO graphical user interface, gui. It is a "command line" driven engine 
+that performs all of the actions necessary to initiate sessions, accept 
+connections and maintain connections with other echoLink users. It also 
+handles the compression/decompression of the audio stream.
+
+	EchoLinux has no built audio volume control functionality. That is 
+left to outside applications.
+
+	The reason for doing it as an "engine", rather then a full blown gui 
+app, is that I believe in the traditional Linux/Unix "tool to make tools" 
+philosophy. That is, using smaller task specific apps, tied together to 
+perform more complex functions.
+
+	Doing it this way allows application designers to provide their own 
+custom built interfaces using what ever gui building tools they prefer. This 
+could be KDE, Gnome, Tcl/Tk, perl or xforms. The application they build 
+simply has to spawn echoLinux, get user input, pass that input to echoLinux, 
+receive feedback from echoLinux and display it to the user. This makes for a 
+much less complicated application. Plus, any changes to the echolink like 
+protocol would not effect the gui app. All that would be needed is to replace 
+the echoLinux engine application with a newer version.
+
+	Another important point is echoLinux DOES NOT talk to an echolink 
+user server like server1.echolink.org. It expects a valid DNS hostname, or an 
+IP address with the connection request it receives. It is the responsibility of 
+the controlling application to resolve echolink user nodes to valid internet 
+host addresses. This allows for the use of servers that are not specific to the 
+echolink type servers.
+
+
+What a User Interface App Must Do
+
+	If you are not familiar with Linux/Unix programming this section will 
+probably not make a lot of sense.  I you wish to learn more about it there are 
+several good texts available to those who already know some programming. 
+One is "Beginning Linux Programming" from WROX Publishing. It covers 
+all I am about to explain ( I am not associated in any way with WROX or the 
+authors, it taught me a lot about Linux specific programming).
+
+	I will not talk about gui set up, that is different for each gui builder. I 
+will only talk about starting echoLinux.
+
+Starting echoLinux from an application is very straight forward, just like 
+spawning any application with communication pipes to the child app's stdin 
+and stdout file descriptors.
+
+	First you set up two pipes, fork() a new process, close the child 
+process's stdin and stdout file descriptors and replace them with the read and 
+write ends respectively of the two pipes. Then do an execlp() with echLinux 
+which now replaces the child process and echoLinux is now running. 
+
+	The gui communicates with echoLink by reading and writing ASCII 
+strings using the previuously setup pipes.
+
+	When shutting, down a gui must kill the echoLink process it created.
+
+Controlling echoLinux
+
+You communicate echoLinux using ASCII strings terminated with a 
+newline, `\n', character. Here are the currently available commands. The "'s 
+are not part of the string.
+
+"C <hostname>" Attempts to start an eholink session with the node at the 
+               internet hostname or actual valid IP address.
+
+"D"	Disconnects, ends the present session.
+
+" "	A space toggles between transmit and receive mode. A 
+        session starts in receive mode.
+
+"Q"	Quit, this kills the echoLinux child.
+
+"N <any data>"	This is the outgoing keyboard chat data.
+
+"VN"	Turn VOX on
+
+"VF"	Turn VOX off
+
+"VT <numb>	Set VOX threshold, <numb> is an integer number
+
+"SN"	Turn on audio strength reporting
+
+"SF"	Turn off audio strength reporting
+
+"I"	Send information
+
+The control strings from echoLinux are :
+
+"C <data>"	A connection has been made to a remote node. It's SDES 
+		data, usually the callsign and name are contained in the 
+		data.
+
+"D"	The remote node has disconnected.
+
+"T"	echoLinux is in transmit mode.
+
+"R"	echoLinux is in receive mode.
+
+"N <data>"	This is the keyboard chat data from the connected node.
+
+"I <data>"	This is the information that is sent by the remote node at 
+		connection time contain his station data. See special note 
+		about this data below.
+
+"S <numb>"	Average audio strength of one packet. Sent for both 
+		transmit and receive. <numb> is an integer number.
+
+There is one special note about the information string. The information 
+data can be several lines of text. The way it is transmitted and received is 
+as one long string in one UDP packet. Instead of newlines, `\n', seprating 
+the lines there are cr's, `\r', which are hex 0x0d. In order to maintain the 
+string nature of echoLinux command communication this data is left this 
+way. It is the responsibility of the gui to separate the lines in the data using 
+the cr's as the delimiters. 
+
+EchoLinux is a work in progress while it is in alpha stage. Gui developers 
+should be prepared for modifications and additions to the above 
+commands.
+
+Requires Files
+
+	There are two files that are required.
+
+The first is userdata.txt that contains four lines. Your callsign, name, 
+location, and server password in that order. Example:
+
+WD4NMQ
+JEFF
+KINGSPORT, TN
+YOUR PASSWORD
+
+I know the password and callsign must be in upper case to access the 
+user server. But, echolinux does not access the echolink servers. That is the 
+job of another application.
+
+These fields are the same as what you entered when starting echolink 
+the first time.
+
+	The next file is info.txt. It contains the station information data that is 
+sent at the start of a connection. Example:
+
+WD4NMQ, Jeff
+
+Located in Kingsport Tenn,
+
+Running echolinux test
+software.
+
+	The data in this file follows the same format guidelines as echolink. 
+About 40 characters wide and 20 lines long.
+
+Running echoLinux From Command Line
+
+	Do to the string command nature of echoLinux, it can be run directly 
+from the command line with no controlling gui. Simply type `echolinux' at 
+the command line and then enter the above commands. One problem 
+running from the command line is when an info frame is received it will 
+print over itself sense it contains cr's and  not newlines. 
+
+	Another thing is that echoLinux does not set the audio levels. An 
+outside app must do this.
+
