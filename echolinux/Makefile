@@ -9,7 +9,7 @@ DEBUG = -g -DHEXDUMP
 #CCFLAGS =  -DAUDIO_BLOCKING -DLINUX -DHALF_CONTROL -DM_LITTLE_ENDIAN
 CCFLAGS =
 CC = gcc -O3 # for GNU's gcc compiler
-LFLAGS = -lm
+LFLAGS = -lm -lgsm
 
 INTERNET_PORT = 2074
 
@@ -17,7 +17,7 @@ CARGS = -DInternet_Port=$(INTERNET_PORT)
 
 #   Compiler flags
 
-CFLAGS = $(DEBUG) -Igsm/inc $(CARGS) $(CCFLAGS)
+CFLAGS = $(DEBUG) $(CARGS) $(CCFLAGS)
 #CFLAGS = -Igsm/inc $(CARGS) $(CCFLAGS)
 
 PROGRAMS = echolinux echoaudio
@@ -25,11 +25,11 @@ PROGRAMS = echolinux echoaudio
 all:	$(PROGRAMS)
 
 echolinux: control.o rtpacket.o
-	$(CC) control.o rtpacket.o $(CFLAGS) libgsm.a \
+	$(CC) control.o rtpacket.o $(CFLAGS) \
 	$(LFLAGS) -o echolinux 
 
 echoaudio: vox.o 
-	$(CC) vox.o $(CFLAGS) libgsm.a $(LFLAGS) -o echoaudio 
+	$(CC) vox.o $(CFLAGS) $(LFLAGS) -o echoaudio
 
 control.o: control.c $(INCS)
 	$(CC) -c $(CFLAGS) control.c 
